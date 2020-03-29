@@ -71,9 +71,9 @@ class GameClass:
             self.curr_state = None
 
         # Shutdown all known states
-        for state in self.known_states.itervalues():
+        for state in self.known_states.values():
             state.shutdown()
-        state = {}
+        self.known_states = {}
 
     def getActiveState(self):
         return self.curr_state
