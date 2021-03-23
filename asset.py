@@ -26,8 +26,8 @@ class TileSet(object):
         self.filename = None
 
         if self.image:
-            self.tileCounts = (self.image.get_width()/tile_size[0],
-                               self.image.get_height()/tile_size[1])
+            self.tileCounts = (self.image.get_width()//tile_size[0],
+                               self.image.get_height()//tile_size[1])
             self.numTiles = self.tileCounts[0] * self.tileCounts[1]
             self.filename = filename
 
@@ -44,7 +44,7 @@ class TileSet(object):
             raise IndexError()
 
         tx = tile_idx % self.tileCounts[0]
-        ty = tile_idx / self.tileCounts[0]
+        ty = tile_idx // self.tileCounts[0]
 
         return pg.Rect((tx*self.tileSize[0], ty*self.tileSize[1]), self.tileSize)
 
