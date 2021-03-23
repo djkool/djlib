@@ -57,7 +57,7 @@ class TileSet(object):
             self.image = pg.transform.smoothscale(self.image, new_size)
             self.tileSize = new_tile_size
         except:
-            print "Unable to resize TileSet to %s!" % str(new_size)
+            print("Unable to resize TileSet to %s!" % str(new_size))
             return False
 
         return True
@@ -145,7 +145,7 @@ class Animator(object):
                 self.mode = mode
 
             self.frame = self.anim[1] if self.mode == Animator.MODE_PONG else self.anim[0]
-            print "anim set %s" % str(anim)
+            #print("anim set", str(anim))
 
 
     def render(self, surf, pos):
