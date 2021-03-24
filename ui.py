@@ -13,7 +13,7 @@ import string
 import pygame as pg
 from pygame.locals import *
 
-from primitives import Rectangle as Rect
+from .primitives import Rectangle as Rect
 
 
 

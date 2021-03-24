@@ -9,8 +9,8 @@ __credits__ = []
 
 
 # IMPORTS
-from primitives import Entity
-from primitives import Vector
+from .primitives import Entity
+from .primitives import Vector
 
 # CONSTANTS
 DEFAULT_MAX_VEL = 10.0
