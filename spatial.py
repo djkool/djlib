@@ -4,11 +4,12 @@ spatial.py : Some spatial tracking structures
 
 """
 __author__ = "Andrew Peterson (DJKool14)"
-__copyright__ = "Copyright 2017, DJLib Project [https://github.org/djkool/djlib]"
+__copyright__ = "Copyright 2021, DJLib Project [https://github.org/djkool/djlib]"
 __credits__ = []
 
 
 from .primitives import Point, Rect
+
 
 class QuadTree:
 
@@ -104,6 +105,7 @@ class QuadTree:
 
 #end QuadTree
 
+
 class RectTree(QuadTree):
 
     MIN_RECT = Rect.fromSides(0, 0, 250, 250)
@@ -166,7 +168,6 @@ class RectTree(QuadTree):
         if self.children:
             child_str = ", ".join(str(c) for c in self.children)
         return "%s->%d {%s}" % (str(self.rect), len(self.data) if self.data else 0, child_str)
-            
 
 #end PointTree
 
@@ -212,4 +213,5 @@ class ExpandingRectTree:
     def __getattr__(self, name):
         # pass all remaining attribute calls to the root
         return getattr(self.root, name)
+
 #end ExpandingRectTree

@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 """
 game.py : Provides a basic framework for game looping and states.
+
 """
 __author__ = "Andrew Peterson (DJKool14)"
-__copyright__ = "Copyright 2017, DJLib Project [https://github.org/djkool/djlib]"
+__copyright__ = "Copyright 2021, DJLib Project [https://github.org/djkool/djlib]"
 __credits__ = []
 
 

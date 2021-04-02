@@ -8,13 +8,14 @@ Rect - Axis Aligned Bounding Box
 Circle - Radial Bounding Volume
 """
 __author__ = "Andrew Peterson (DJKool14)"
-__copyright__ = "Copyright 2017, DJLib Project [https://github.org/djkool/djlib]"
+__copyright__ = "Copyright 2021, DJLib Project [https://github.org/djkool/djlib]"
 __credits__ = []
 
 
 # IMPORTS
 import math
 from copy import copy
+
 
 class Vector(list):
 
@@ -113,13 +114,16 @@ class Vector(list):
 
 #end Vector
 
+
 class Point(Vector):
     pass
 #end Point
 
+
 class Size(Vector):
     _ATTR_STRING = "whl"
 #end Size
+
 
 class Entity(object):
     def __init__(self, position=[0,0]):
@@ -135,6 +139,7 @@ class Entity(object):
         self.pos += offset
 
 #end Entity
+
 
 class BoundingVolume(Entity):
 
@@ -154,6 +159,7 @@ class BoundingVolume(Entity):
         return 0
 
 #end BoundingVolume
+
 
 class Rectangle(BoundingVolume):
 
@@ -249,6 +255,7 @@ class Rectangle(BoundingVolume):
         raise AttributeError
 
 #end Rect
+
 
 class Circle(BoundingVolume):
 

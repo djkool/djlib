@@ -4,7 +4,7 @@ ui.py : Basic UI Framework
 
 """
 __author__ = "Andrew Peterson (DJKool14)"
-__copyright__ = "Copyright 2017, DJLib Project [https://github.org/djkool/djlib]"
+__copyright__ = "Copyright 2021, DJLib Project [https://github.org/djkool/djlib]"
 __credits__ = []
 
 
@@ -76,7 +76,6 @@ class Theme(object):
 #end Theme
 
 
-
 class ColorTheme(Theme):
 
     # Frame Colors
@@ -106,6 +105,7 @@ def setTheme(theme):
     global _THEME
     if theme != _THEME:
         _THEME = theme
+
 #end setTheme
 
 

@@ -4,7 +4,7 @@ physics.py : Very basic physical entity helpers.
 
 """
 __author__ = "Andrew Peterson (DJKool14)"
-__copyright__ = "Copyright 2017, DJLib Project [https://github.org/djkool/djlib]"
+__copyright__ = "Copyright 2021, DJLib Project [https://github.org/djkool/djlib]"
 __credits__ = []
 
 
@@ -40,7 +40,7 @@ class PhysicsEntity(Entity):
         # Enforce velocity cap
         if self.vel.length() > self.phys_attrs.max_vel:
             self.vel = self.vel.normalized() * self.phys_attrs.max_vel
-            
+
         # update position using velocity
         self.pos = self.pos + (self.vel*time_step)
 
@@ -50,7 +50,7 @@ class PhysicsEntity(Entity):
         # clear physics data on position move
         self.vel.clear()
         self.accel = None
-        
+
     def setVelocity(self, vel):
         # cap velocity to the max velocity defined in our physical attributes
         if vel.length() > self.phys_attrs.max_vel:
@@ -59,10 +59,11 @@ class PhysicsEntity(Entity):
 
     def isMoving(self):
         return self.vel.length() > 0
-    
+
     def size(self):
         return self.phys_attrs.radius
 
     def __getattr__(self, attr):
         return getattr(self.phys_attrs, attr)
-        
+
+#end PhysicsEntity
