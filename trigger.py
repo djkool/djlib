@@ -43,8 +43,10 @@ class TriggerManager(object):
 
 class Trigger(object):
 	
-	def __init__(self, callback = None, autoremove = True):
+	def __init__(self, name, callback = None, autoremove = True):
 		self.tmgr = None
+		self.id = 0
+		self.name = name
 		self.callback = callback
 		self.autoremove = autoremove
 
@@ -79,7 +81,7 @@ class Trigger(object):
 class Timer(Trigger):
 
 	def __init__(self, delay, callback, recurring = False):
-		Trigger.__init__(self, callback, not recurring)
+		Trigger.__init__(self, None, callback, not recurring)
 		self.delay = delay
 		self.recurring = recurring
 
@@ -107,15 +109,15 @@ class Timer(Trigger):
 #end Timer
 
 ###############################################################################
-##  ProximityTrigger
+##  Proximity
 
-class ProximityTrigger(Trigger):
+class Proximity(Trigger):
 	from .primitives import BoundingVolume
 
-	def __init__(self, entity, bound_vol, callback = None):
-		Trigger.__init__(self, callback, False)
+	def __init__(self, name, entity, bound_vol, callback = None):
+		Trigger.__init__(self, name, callback, False)
 		self.entity = entity
-		if not isinstance(bound_vol, ProximityTrigger.BoundingVolume): raise TypeError()
+		if not isinstance(bound_vol, Proximity.BoundingVolume): raise TypeError()
 		self.bound_vol = bound_vol
 
 	def update(self, dt):

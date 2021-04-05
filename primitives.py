@@ -178,6 +178,10 @@ class Rectangle(BoundingVolume):
         return Rectangle(top_left, bottom_right - top_left)
 
     @classmethod
+    def fromPosSize(cls, x, y, width, height):
+        return Rectangle(Vector(x, y), Vector(width, height))
+
+    @classmethod
     def fromPointSize(cls, vec_pos, width, height):
         return Rectangle(vec_pos, Vector(width, height))
 
