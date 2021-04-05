@@ -158,6 +158,15 @@ class BoundingVolume(Entity):
     def height(self):
         return 0
 
+    def size(self):
+        return (self.width(), self.height())
+
+    def args(self):
+        return self.pos.args()
+
+    def intArgs(self):
+        return self.pos.intArgs()
+
 #end BoundingVolume
 
 
@@ -205,6 +214,10 @@ class Rectangle(BoundingVolume):
                         return False
                 return True
             return False
+        # Entity - Keep last
+        elif isinstance(entity, Entity):
+            return self.contains(entity.pos)
+
         raise NotImplementedError
 
     def center(self):
@@ -215,6 +228,15 @@ class Rectangle(BoundingVolume):
 
     def sides(self):
         return (self.pos[0], self.pos[1], self.pos[0]+self.size[0], self.pos[1]+self.size[1])
+
+    def intersect(self, rect):
+        if not self.intersects(rect):
+            return None
+
+        return Rectangle.fromSides(self.left if self.left < rect.left else rect.left,
+                                   self.top if self.top < rect.top else rect.top,
+                                   self.right if self.right < rect.right else rect.right,
+                                   self.bottom if self.bottom < rect.bottom else rect.bottom)
 
     def intersects(self, rect):
         ours = self.corners()
@@ -282,23 +304,35 @@ class Circle(BoundingVolume):
         if isinstance(entity, Vector):
             return (self.pos - entity).length() <= self.radius
         # Rect
-        elif isinstance(entity, Rect):
+        elif isinstance(entity, Rectangle):
             return self.contains(entity.pos) and self.contains(entity.pos+entity.size)
         # Circle
         elif isinstance(entity, Circle):
             if self.radius > entity.radius:
                 return self.pos.distanceApart(entity.pos) < (self.radius-entity.radius)
             return False
+        #Entity - Keep last
+        elif isinstance(entity, Entity):
+            return self.contains(entity.pos)
 
         raise NotImplementedError
 
-    def offset(self, offset_x, offset_y):
-        return Circle(self.pos, offset_x+offset_y)
+    def offset(self, offset):
+        return Circle(self.pos, offset)
 
     def width(self):
-        return self.radius
+        return self.diameter()
 
     def height(self):
-        return self.radius
+        return self.diameter()
+
+    def diameter(self):
+        return self.radius * 2
+
+    def args(self):
+        return (self.pos.args(), self.radius)
+
+    def intArgs(self):
+        return (self.pos.intArgs(), int(self.radius))
 
 #end Circle
