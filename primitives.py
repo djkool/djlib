@@ -28,7 +28,7 @@ class Vector(list):
         return Vector(*[x+y for x,y in zip(self, other_vec)])
 
     def __iadd__(self, other_vec):
-        for i in xrange(len(self)):
+        for i in range(len(self)):
             self[i] += other_vec[i]
         return self
 
@@ -36,7 +36,7 @@ class Vector(list):
         return Vector(*[x-y for x,y in zip(self, other_vec)])
 
     def __isub__(self, other_vec):
-        for i in xrange(len(self)):
+        for i in range(len(self)):
             self[i] -= other_vec[i]
         return self
 
@@ -46,7 +46,7 @@ class Vector(list):
         return self.scaled(vec_or_scale)
 
     def __imul__(self, scale):
-        for i in xrange(len(self)):
+        for i in range(len(self)):
             self[i] *= scale
         return self
 
@@ -80,6 +80,9 @@ class Vector(list):
     def length(self):
         return math.sqrt(sum([x*x for x in self]))
 
+    def empty(self):
+        return not any(self)
+
     def scaled(self, scale):
         return Vector(*[x*scale for x in self])
 
@@ -99,7 +102,7 @@ class Vector(list):
         return tuple([int(x) for x in self])
 
     def clear(self):
-        for i in xrange(len(self)):
+        for i in range(len(self)):
             self[i] = 0
 
     def distanceApart(self, other_vec):
