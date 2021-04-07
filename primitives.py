@@ -14,7 +14,6 @@ __credits__ = []
 
 # IMPORTS
 import math
-from copy import copy
 
 
 class Vector(list):
@@ -90,7 +89,7 @@ class Vector(list):
         length = self.length()
         if length:
             return Vector(*[x/length for x in self])
-        return copy(self)
+        return self.copy()
 
     def dot(self, other_vec):
         return sum([x*y for x,y in zip(self, other_vec)])
@@ -113,7 +112,7 @@ class Vector(list):
         return self + diff.scaled(d)
 
     def copy(self):
-        return copy(self)
+        return Vector(*self)
 
 #end Vector
 
