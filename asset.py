@@ -19,26 +19,40 @@ log = logging.getLogger(__name__)
 
 class TileSet(object):
 
-    def __init__(self, filename, tile_size):
+    def __init__(self, filename, tile_size, flip_image=False):
 
         self.tileSize = tile_size
         self.srcTileSize = tile_size
         self.numTiles = 0
         self.tileCounts = (0,0)
-        self.image = pg.image.load(filename)
         self.filename = None
+        self.image = None
+        self.flip_image = flip_image
+        self.image_flipped = None
 
+        self._load(filename)
+
+    def _load(self, filename):
+        self.image = pg.image.load(filename)
+        assert(self.image)
         if self.image:
-            self.tileCounts = (self.image.get_width()//tile_size[0],
-                               self.image.get_height()//tile_size[1])
+            self.tileCounts = (self.image.get_width()//self.tileSize[0],
+                               self.image.get_height()//self.tileSize[1])
             self.numTiles = self.tileCounts[0] * self.tileCounts[1]
             self.filename = filename
+            log.debug("%s tileCounts=%s, numTiles=%d", filename, str(self.tileCounts), self.numTiles)
+
+        if self.flip_image:
+            self._renderFlipped()
 
 
-    def render(self, surf, pos, tile_idx):
+    def render(self, surf, pos, tile_idx, flipped=False):
+
+        if flipped:
+            assert(self.flip_image)
         
         tileRect = self.getTileRect(tile_idx)
-        surf.blit(self.image, pos, tileRect)
+        surf.blit(self.image if not flipped else self.image_flipped, pos, tileRect)
 
 
     def getTileRect(self, tile_idx):
@@ -59,6 +73,9 @@ class TileSet(object):
             # Can throw if bit depth of image < 24 bits
             self.image = pg.transform.smoothscale(self.image, new_size)
             self.tileSize = new_tile_size
+
+            if self.image_flip:
+                self._renderFlipped()
         except:
             log.warn("Unable to resize TileSet to %s!", str(new_size))
             return False
@@ -68,14 +85,22 @@ class TileSet(object):
     def getScale(self):
         return (float(self.tileSize[0])/self.srcTileSize[0], float(self.tileSize[1])/self.srcTileSize[1])
 
+    def _renderFlipped(self):
+        # Blit each flipped frame into the same location
+        self.image_flipped = pg.Surface(self.image.get_size(), pg.SRCALPHA)
+        self.image_flipped.fill((0, 0, 0, 0))
+        for x in range(self.numTiles):
+            fsurf = pg.transform.flip(self.image.subsurface(self.getTileRect(x)), True, False)
+            self.image_flipped.blit(fsurf, self.getTileRect(x))
+
 #end TileSet
 
 
 
 class AnimationSet(TileSet):
 
-    def __init__(self, filename, tile_size):
-        TileSet.__init__(self, filename, tile_size)
+    def __init__(self, filename, tile_size, image_flip=False):
+        TileSet.__init__(self, filename, tile_size, image_flip)
 
         self.anims = {}
 
@@ -151,8 +176,8 @@ class Animator(object):
             log.debug("anim set %s", str(anim))
 
 
-    def render(self, surf, pos):
-        self.animset.render(surf, pos, self.frame)
+    def render(self, surf, pos, flipped=False):
+        self.animset.render(surf, pos, self.frame, flipped)
 
 
     def finished(self):
