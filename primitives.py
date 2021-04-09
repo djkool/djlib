@@ -247,8 +247,8 @@ class Rectangle(BoundingVolume):
         if not self.intersects(rect):
             return None
 
-        return Rectangle.fromSides(self.left if self.left > rect.left else rect.left,
-                                   self.top if self.top > rect.top else rect.top,
+        return Rectangle.fromSides(self.left if self.left >= rect.left else rect.left,
+                                   self.top if self.top >= rect.top else rect.top,
                                    self.right if self.right < rect.right else rect.right,
                                    self.bottom if self.bottom < rect.bottom else rect.bottom)
 
