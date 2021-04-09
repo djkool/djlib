@@ -196,6 +196,14 @@ class Rectangle(BoundingVolume):
         self.pos = pos
         self.size = size
 
+    def __add__(self, vector):
+        assert(isinstance(vector, Vector))
+        return Rectangle.fromPointSize(self.pos + vector, *self.size)
+
+    def __sub__(self, vector):
+        assert(isinstance(vector, Vector))
+        return Rectangle.fromPointSize(self.pos - vector, *self.size)
+
     def contains(self, entity):
         bottom_right = self.pos + self.size
 
@@ -300,6 +308,14 @@ class Circle(BoundingVolume):
     def __init__(self, position, radius):
         BoundingVolume.__init__(self, position)
         self.radius = radius
+
+    def __add__(self, vector):
+        assert(isinstance(vector, Vector))
+        return Circle.fromPointSize(self.pos + vector, self.radius)
+
+    def __sub__(self, vector):
+        assert(isinstance(vector, Vector))
+        return Circle.fromPointSize(self.pos - vector, self.radius)
 
     def pointOnCircle(self, rad):
         ray = Vector(math.cos(rad), math.sin(rad)).scaled(self.radius)
