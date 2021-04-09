@@ -76,6 +76,11 @@ class Vector(list):
     def __hash__(self):
         return hash(str(self))
 
+    def set(*coords):
+        assert(len(coords) == len(self))
+        for i, v in enumerate(coords):
+            self[i] = v
+
     def length(self):
         return math.sqrt(sum([x*x for x in self]))
 
@@ -128,11 +133,15 @@ class Size(Vector):
 
 
 class Entity(object):
-    def __init__(self, position=[0,0]):
+    def __init__(self, position=Point(0, 0)):
         self.pos = position
 
-    def setPosition(self, pos):
-        self.pos = pos
+    def setPosition(self, x, y=None):
+        # API changed, so still handle passing of a single argument
+        if y is None:
+            self.pos = x if isinstance(x, Vector) else Vector(*x)
+        else:
+            self.pos.set(x, y)
 
     def getPosition(self):
         return self.pos
@@ -232,6 +241,7 @@ class Rectangle(BoundingVolume):
         elif isinstance(entity, Entity):
             return self.contains(entity.pos)
 
+        print("Unknown Entity - %s" % str(entity))
         raise NotImplementedError
 
     def center(self):
@@ -337,6 +347,7 @@ class Circle(BoundingVolume):
         elif isinstance(entity, Entity):
             return self.contains(entity.pos)
 
+        print("Unknown Entity - %s" % str(entity))
         raise NotImplementedError
 
     def offset(self, offset):

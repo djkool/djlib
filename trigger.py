@@ -31,6 +31,11 @@ class TriggerManager(object):
 	def removeTrigger(self, trigger):
 		self.triggers.remove(trigger)
 
+	def clearTriggers(self, ttype=None):
+		if ttype:
+			self.triggers = [x for x in self.triggers if not isinstance(x, ttype)]
+		else:
+			self.triggers.clear()
 
 	def addTimer(self, delay, callback, recurring = False):
 		return self.addTrigger(Timer(delay, callback, recurring))
