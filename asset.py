@@ -10,11 +10,205 @@ __author__ = "Andrew Peterson (DJKool14)"
 __copyright__ = "Copyright 2021, DJLib Project [https://github.org/djkool/djlib]"
 __credits__ = []
 
+from sys import getsizeof
+from itertools import chain
+from collections import deque, defaultdict
+import logging
+import pprint
 
 import pygame as pg
-import logging
+
 
 log = logging.getLogger(__name__)
+
+class AssetManager(object):
+
+    class AssetStack(object):
+        def __init__(self):
+            self.assets = defaultdict(lambda: {})
+            self.size = 0
+
+        def dumpInfo(self):
+            log.debug("\nAssets:\n%s", pprint.pformat(self.assets, indent=4))
+            log.debug("Size: %i", self.size)
+
+    # end AssetStack
+
+    # Singleton instance
+    _instance = None
+
+    def __init__(self):
+        RuntimeError("Cannot construct instance of singleton class. Call instance() instead.")
+
+    @classmethod
+    def instance(cls):
+        if cls._instance is None:
+            cls._instance = cls.__new__(cls)
+            # Any other initialization goes here
+        return cls._instance
+
+    def init(self, gameclass, cache_assets = True):
+        self.gc = gameclass
+        self.cache_assets = cache_assets
+        self.managing = {}
+        self.asset_stack = [AssetManager.AssetStack()]
+        self.curr = self.asset_stack[0]
+        self.tsize = 0
+
+        self._managed_loaders = {}
+
+        # Install known loaders
+        self.manage(pg.Surface, pg.image, "Image")
+        self.manage(TileSet)
+        self.manage(AnimationSet)
+
+    def manage(self, asset_class, loader=None, name=None):
+        loader = loader if loader else asset_class
+        name = name if name else asset_class.__name__
+        if asset_class in self.managing:
+            log.warn("%s is already being managed.", name)
+            return False
+
+        # create loading function
+        def _load(filename, *args, **kargs):
+            asset = self.getAsset(filename, asset_class)
+            if asset:
+                log.debug("Loading %s from cache.", filename)
+                return asset
+
+            log.debug("Loading %s(%s)-%s into AssetManager.", name, str(asset_class), filename)
+            asset = loader.load(filename, *args, **kargs)
+            self.trackAsset(filename, asset)
+            return asset
+
+        self._managed_loaders[name] = asset_class
+        self.managing[asset_class] = _load
+        return True
+
+    def trackAsset(self, filename, asset):
+        """ Track Assets not loaded by AssetManager."""
+        if not self.cache_assets:
+            return False
+
+        assets = self.curr.assets[asset.__class__]
+        if not assets.get(filename, None):
+            assets[filename] = asset
+            size = self._trackSize(asset)
+            log.debug("Tracking %s(%s)-%s Size(%i):%s", asset.__class__.__name__, str(asset.__class__), filename, size, str(asset))
+            return True
+        return False
+
+    def getAsset(self, filename, asset_class=None):
+        if asset_class:
+            assets = self.curr.assets[asset_class]
+            return assets.get(filename, None)
+
+        for assets in self.curr.assets.values():
+            asset = assets.get(filename, None)
+            if asset:
+                return asset
+        return None
+
+    def saveAssets(self):
+        # Create new stack object
+        idx = len(self.asset_stack)
+        self.asset_stack.append(AssetManager.AssetStack())
+        self.curr = self.asset_stack[idx]
+
+        log.info("Saving asset stack %i...", idx)
+        return len(self.asset_stack)
+
+    def popAssets(self):
+        assets = self.asset_stack.pop()
+        idx = len(self.asset_stack)
+        self.curr = self.asset_stack[idx-1]
+
+        log.info("Restoring stack %i:", idx)
+        assets.dumpInfo()
+        return idx
+
+    def dumpDebug(self):
+        log.debug("\nLoaders:\n%s", pprint.pformat(self._managed_loaders, indent=4))
+        log.debug("Asset Stacks(%d):", len(self.asset_stack))
+        for assets in self.asset_stack:
+            assets.dumpInfo()
+        log.debug("Total Size: %i bytes.", self.tsize)
+
+
+    # Attempt to track assets sizes
+    # Credit: https://code.activestate.com/recipes/577504/
+    def total_size(o, handlers={}, verbose=False):
+        """ Returns the approximate memory footprint an object and all of its contents.
+
+        Automatically finds the contents of the following builtin containers and
+        their subclasses:  tuple, list, deque, dict, set and frozenset.
+        To search other containers, add handlers to iterate over their contents:
+
+            handlers = {SomeContainerClass: iter,
+                        OtherContainerClass: OtherContainerClass.get_elements}
+
+        """
+        dict_handler = lambda d: chain.from_iterable(d.items())
+        all_handlers = {tuple: iter,
+                        list: iter,
+                        deque: iter,
+                        dict: dict_handler,
+                        set: iter,
+                        frozenset: iter,
+                       }
+        all_handlers.update(handlers)     # user handlers take precedence
+        seen = set()                      # track which object id's have already been seen
+        default_size = getsizeof(0)       # estimate sizeof object without __sizeof__
+
+        def sizeof(o):
+            if id(o) in seen:       # do not double count the same object
+                return 0
+            seen.add(id(o))
+            s = getsizeof(o, default_size)
+
+            if verbose:
+                log.debug(s, type(o), repr(o))
+
+            for typ, handler in all_handlers.items():
+                if isinstance(o, typ):
+                    s += sum(map(sizeof, handler(o)))
+                    break
+            return s
+
+        return sizeof(o)
+
+    def _trackSize(self, asset):
+        size = getsizeof(asset)
+        self.curr.size += size
+        self.tsize += size
+        return size
+
+    def _load(self, filename, *args, **kargs):
+        pass
+
+    # Override getattr to catch and redirect load calls
+    def __getattr__(self, attr):
+        # LOAD - load<CLASS>
+        if attr.startswith("load"):
+            classname = attr[4:]
+            if not classname in self._managed_loaders:
+                raise TypeError("%s is not a managed asset class. Use AssetManager.manage() to track." % classname)
+            asset_class = self._managed_loaders[classname]
+            return self.managing[asset_class]
+        # GET - get<CLASS>
+        elif attr.startswith("get") and attr != "getAsset":
+            classname = attr[3:]
+            if not classname in self._managed_loaders:
+                raise TypeError("%s is not a managed asset class. Use AssetManager.manage() to track." % classname)
+            asset_class = self._managed_loaders[classname]
+            log.debug("%s(%s):%s", classname, str(asset_class), str(self.curr.assets[asset_class]))
+            return lambda filename: self.getAsset(filename, asset_class)
+
+        # Pass other attrs to default handler
+        return object.__getattr__(self, attr)
+
+#end AssetManager
+
 
 
 class TileSet(object):
