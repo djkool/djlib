@@ -14,7 +14,7 @@ from .primitives import Entity, Vector, Circle
 # CONSTANTS
 DEFAULT_MAX_VEL = 10.0
 DEFAULT_MASS = 10.0
-DEFAULT_DAMPEN = 1.0
+DEFAULT_DAMPEN = 0.9
 DEFAULT_RADIUS = 10.0
 
 DAMP_THRESHOLD = 2
@@ -70,8 +70,9 @@ class PhysicsEntity(Entity):
         accel = force * (1 / self.phys_attrs.mass)
         self.vel += accel
 
-    def dampen(self):
-        self.vel = self.vel * self.phys_attrs.dampen
+    def dampen(self, dx=True, dy=True):
+        self.vel.set(self.vel.x * self.phys_attrs.dampen if dx else self.vel.x,
+                     self.vel.y * self.phys_attrs.dampen if dy else self.vel.y)
         if self.vel.length() < DAMP_THRESHOLD:
             self.vel.clear()
 

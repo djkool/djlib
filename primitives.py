@@ -76,7 +76,7 @@ class Vector(list):
     def __hash__(self):
         return hash(str(self))
 
-    def set(*coords):
+    def set(self, *coords):
         assert(len(coords) == len(self))
         for i, v in enumerate(coords):
             self[i] = v
