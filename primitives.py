@@ -152,6 +152,46 @@ class Entity(object):
 #end Entity
 
 
+class Ray(Entity):
+    from math import pi as PI
+    RAD_DEGREES = 360 / math.tau
+
+    # CLASS CONSTRUCTOR HELPERS
+    @classmethod
+    def fromPoints(cls, pos, opos):
+        return Ray(pos, opos - pos)
+
+    def __init__(self, pos, dir_):
+        Entity.__init__(self, pos)
+        self.dir = dir_
+
+    def set(self, pos, dir_):
+        self.pos = pos
+        self.dir = dir_
+
+    def size(self):
+        return self.dir.length()
+
+    def length(self):
+        return self.dir.length()
+
+    def angle(self, radians=False):
+        rot = math.atan2(self.dir.y, self.dir.x) + self.PI
+        return rot if radians else radians * self.RAD_DEGREES
+
+    def rotateDeg(self, degrees):
+        self.rotateRad(degrees / self.RAD_DEGREES)
+
+    def rotateRad(self, rads):
+        self.dir.x = self.dir.x*math.cos(rads) - self.dir.y*math.sin(rads)
+        self.dir.y = self.dir.x*math.sin(rads) + self.dir.y*math.cos(rads)
+
+    def endPoint(self):
+        return self.pos + self.dir
+
+#end Ray
+
+
 class BoundingVolume(Entity):
 
     def contains(self, entity):
