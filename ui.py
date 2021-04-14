@@ -13,23 +13,23 @@ import string
 import pygame as pg
 from pygame.locals import *
 
+from djlib.utils import enum, flags
 import logging
+
 log = logging.getLogger(__name__)
 
 
-class Events:
-    """
-    Custom Event IDs used when pushing custom USEREVENTS through
-    the pygame events queue instead of direct callback notifications.
-    """
-
+"""
+Custom Event IDs used when pushing custom USEREVENTS through
+the pygame events queue instead of direct callback notifications.
+"""
+Events = enum(
     START_ID = 1234,
-    BUTTON_CLICKED = 1234
-    EDITBOX_RETURN = 1235
+    BUTTON_CLICKED = 1234,
+    EDITBOX_RETURN = 1235,
 
     END_ID = 1236
-#end Event
-
+)
 
 class Theme(object):
     """
@@ -37,13 +37,15 @@ class Theme(object):
     """
 
     # Various Flags
-    F_NONE = 0
-    F_CENTER_HORZ = 1
-    F_CENTER_VERT = 2
-    F_CENTER_FULL = 3
-    F_PAD_HORZ = 4
-    F_PAD_VERT = 8
-    F_PAD_FULL = 12
+    Format = flags(
+        "NONE",
+        "CENTER_HORZ",
+        "CENTER_VERT",
+        "CENTER_FULL",
+        "PAD_HORZ",
+        "PAD_VERT",
+        "PAD_FULL",
+    )
 
     FONT = None # Delay font creation until first text
     FONT_COLOR = pg.Color(255, 255, 255)
@@ -72,13 +74,13 @@ class Theme(object):
 
         text_surf = self.FONT.render(text, True, self.FONT_COLOR)
 
-        if flags & Theme.F_PAD_FULL:
-            rect = rect.inflate(-self.PADDING if flags & self.F_PAD_HORZ else 0,
-                                -self.PADDING if flags & self.F_PAD_VERT else 0)
+        if flags & Theme.Format.PAD_FULL:
+            rect = rect.inflate(-self.PADDING if flags & self.Format.PAD_HORZ else 0,
+                                -self.PADDING if flags & self.Format.PAD_VERT else 0)
         pos = rect.topleft
-        if flags & Theme.F_CENTER_FULL:
-            pos = (pos[0] + ((rect.width-text_surf.get_width())/2 if flags & self.F_CENTER_HORZ else 0),
-                   pos[1] + ((rect.height-text_surf.get_height())/2 if flags & self.F_CENTER_VERT else 0))
+        if flags & Theme.Format.CENTER_FULL:
+            pos = (pos[0] + ((rect.width-text_surf.get_width())/2 if flags & self.Format.CENTER_HORZ else 0),
+                   pos[1] + ((rect.height-text_surf.get_height())/2 if flags & self.Format.CENTER_VERT else 0))
 
         surf.blit(text_surf, pos)
         return text_surf.get_width()
@@ -193,7 +195,7 @@ class Text(Frame):
     def __init__(self, bounds, text="", centered = False):
         Frame.__init__(self, bounds)
         self.text = text
-        self.flags = Theme.F_CENTER_FULL if centered else 0
+        self.flags = Theme.Format.CENTER_FULL if centered else 0
 
     def setText(self, text):
         if text != self.text:
@@ -258,7 +260,7 @@ class Button(Frame):
 
     def render(self, surf):
         _THEME.drawButton(surf, self.getRect(), self.state)
-        _THEME.drawText(surf, self.getRect(), self.text, Theme.F_CENTER_FULL)
+        _THEME.drawText(surf, self.getRect(), self.text, Theme.Format.CENTER_FULL)
 
     def processEvent(self, event):
         # Moving into or out of button
@@ -337,9 +339,9 @@ class CheckBox(Button):
         state = Button.DOWN if self.checked else self.state
         _THEME.drawButton(surf, check_rect, state)
         if self.checked:
-            _THEME.drawText(surf, check_rect, "X", Theme.F_CENTER_FULL)
+            _THEME.drawText(surf, check_rect, "X", Theme.Format.CENTER_FULL)
         rect = pg.Rect(check_rect.topright, (rect.width-check_rect.width, rect.height))
-        _THEME.drawText(surf, rect, self.text, Theme. F_CENTER_VERT)
+        _THEME.drawText(surf, rect, self.text, Theme.Format.CENTER_VERT)
 
 #end CheckBox
 
@@ -358,7 +360,7 @@ class EditBox(Frame):
         if self.focused:
             text = self.text[:self.selPos]+"|"+self.text[self.selPos:]
         _THEME.drawInput(surf, self.getRect())
-        _THEME.drawText(surf, self.getRect(), text, Theme.F_CENTER_VERT | Theme.F_PAD_HORZ)
+        _THEME.drawText(surf, self.getRect(), text, Theme.Format.CENTER_VERT | Theme.Format.PAD_HORZ)
 
     def processEvent(self, event):
         if event.type == MOUSEBUTTONDOWN:
