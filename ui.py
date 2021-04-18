@@ -48,11 +48,15 @@ class Theme(object):
     Format.CENTER_FULL = Format.CENTER_HORZ | Format.CENTER_VERT
     Format.PAD_FULL = Format.PAD_HORZ | Format.PAD_VERT
 
+    DEFAULT_FONT_COLOR = pg.Color(255, 255, 255)
+    DEFAULT_FONT_SIZE = 12
+
     FONT = None # Delay font creation until first text
     FONT_COLOR = pg.Color(255, 255, 255)
-    FONT_SIZE = 12
 
     PADDING = 0 
+
+    _font_cache = {}
 
     def drawFrame(self, surf, rect):
         raise NotImplemented()
@@ -69,22 +73,45 @@ class Theme(object):
     def drawProgress(self, surf, rect, progress, steps):
         raise NotImplemented()
 
-    def drawText(self, surf, rect, text, flags=0):
+    def drawText(self, surf, rect, text, flags_=0):
         if not self.FONT:
-            self.FONT = pg.font.Font(pg.font.get_default_font(), self.FONT_SIZE)
+            self.FONT = self.generateFont("default", None, self.DEFAULT_FONT_SIZE)
 
-        text_surf = self.FONT.render(text, True, self.FONT_COLOR)
+        texts = text.split("\n")
+        rect = rect.copy()
 
-        if flags & Theme.Format.PAD_FULL:
-            rect = rect.inflate(-self.PADDING if flags & self.Format.PAD_HORZ else 0,
-                                -self.PADDING if flags & self.Format.PAD_VERT else 0)
-        pos = rect.topleft
-        if flags & Theme.Format.CENTER_FULL:
-            pos = (pos[0] + ((rect.width-text_surf.get_width())/2 if flags & self.Format.CENTER_HORZ else 0),
-                   pos[1] + ((rect.height-text_surf.get_height())/2 if flags & self.Format.CENTER_VERT else 0))
+        for text in texts:
+            text_surf = self.FONT.render(text, True, self.FONT_COLOR)
 
-        surf.blit(text_surf, pos)
+            if flags_ & Theme.Format.PAD_FULL:
+                rect = rect.inflate(-self.PADDING if flags_ & self.Format.PAD_HORZ else 0,
+                                    -self.PADDING if flags_ & self.Format.PAD_VERT else 0)
+            pos = rect.topleft
+            if flags_ & Theme.Format.CENTER_FULL:
+                pos = (pos[0] + ((rect.width-text_surf.get_width())/2 if flags_ & self.Format.CENTER_HORZ else 0),
+                       pos[1] + ((rect.height-text_surf.get_height())/2 if flags_ & self.Format.CENTER_VERT else 0))
+
+            surf.blit(text_surf, pos)
+            rect.y += text_surf.get_height()
+
         return text_surf.get_width()
+
+    def generateFont(self, name, face=None, size=12):
+        font = self._font_cache.get(name, None)
+        face = face if face else pg.font.get_default_font()
+
+        if not font:
+            font = pg.font.Font(face, size)
+            self._font_cache[name] = font
+        return font
+
+    def selectFont(self, name, color=(255,255,255)):
+        font = self._font_cache.get(name, None)
+        if font:
+            self.FONT = font
+            self.FONT_COLOR = color
+            return True
+        return False
 
 #end Theme
 
