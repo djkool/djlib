@@ -41,11 +41,12 @@ class Theme(object):
         "NONE",
         "CENTER_HORZ",
         "CENTER_VERT",
-        "CENTER_FULL",
         "PAD_HORZ",
         "PAD_VERT",
-        "PAD_FULL",
     )
+
+    Format.CENTER_FULL = Format.CENTER_HORZ | Format.CENTER_VERT
+    Format.PAD_FULL = Format.PAD_HORZ | Format.PAD_VERT
 
     FONT = None # Delay font creation until first text
     FONT_COLOR = pg.Color(255, 255, 255)
