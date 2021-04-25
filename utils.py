@@ -50,6 +50,30 @@ def flags(*sequential, **named):
 
 
 """
+Singletone - Parent class to create single instance global objects.
+"""
+class Singleton:
+
+    _instance = None
+
+    @classmethod
+    def instance(cls):
+        if not cls._instance:
+            cls._instance = cls.__new__(cls)
+            cls._instance.init()
+        return cls._instance
+
+    def init(self):
+        """ Replaces __init__ for the Singletone class"""
+        pass
+
+    def __init__(self):
+        raise NotImplementedError("%s is a singleton. Use `instance()` to access." % self.__class__.__name__)
+
+#end Singleton
+
+
+"""
 Interface - Base class to define interfaces where issubclass/isinstance will fail if subclasses have
 not implemented all the methods of the interface. Ignores "_****" methods.
 """

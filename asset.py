@@ -18,10 +18,12 @@ import pprint
 
 import pygame as pg
 
+from djlib.utils import Singleton
+
 
 log = logging.getLogger(__name__)
 
-class AssetManager(object):
+class AssetManager(Singleton):
 
     class AssetStack(object):
         def __init__(self):
@@ -34,21 +36,8 @@ class AssetManager(object):
 
     # end AssetStack
 
-    # Singleton instance
-    _instance = None
 
-    def __init__(self):
-        RuntimeError("Cannot construct instance of singleton class. Call instance() instead.")
-
-    @classmethod
-    def instance(cls):
-        if cls._instance is None:
-            cls._instance = cls.__new__(cls)
-            # Any other initialization goes here
-        return cls._instance
-
-    def init(self, gameclass, cache_assets = True):
-        self.gc = gameclass
+    def init(self, cache_assets = True):
         self.cache_assets = cache_assets
         self.managing = {}
         self.asset_stack = [AssetManager.AssetStack()]
@@ -118,7 +107,7 @@ class AssetManager(object):
         log.info("Saving asset stack %i...", idx)
         return len(self.asset_stack)
 
-    def popAssets(self):
+    def restoreAssets(self):
         assets = self.asset_stack.pop()
         idx = len(self.asset_stack)
         self.curr = self.asset_stack[idx-1]
