@@ -8,7 +8,7 @@ __copyright__ = "Copyright 2021, DJLib Project [https://github.org/djkool/djlib]
 __credits__ = []
 
 
-from .primitives import Point, Rect
+from .primitives import Point, Rectangle as Rect
 
 
 class QuadTree:
