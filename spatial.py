@@ -214,4 +214,7 @@ class ExpandingRectTree:
         # pass all remaining attribute calls to the root
         return getattr(self.root, name)
 
+    def __iter__(self):
+        return iter(self.root)
+
 #end ExpandingRectTree

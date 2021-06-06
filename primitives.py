@@ -62,8 +62,9 @@ class Vector(list):
         return "<"+", ".join(str(x) for x in self)+">"
 
     def __getattr__(self, attr):
-        # print "get",attr
-        return self[self._ATTR_STRING.index(attr)]
+        if attr in self._ATTR_STRING:
+            return self[self._ATTR_STRING.index(attr)]
+        return list.__getattr__(attr)
 
     def __setattr__(self, attr, value):
         # print "set",attr,value
