@@ -97,6 +97,9 @@ class Vector(list):
             return Vector(*[x/length for x in self])
         return self.copy()
 
+    def intify(self):
+        return Vector(*self.intArgs())
+
     def dot(self, other_vec):
         return sum([x*y for x,y in zip(self, other_vec)])
 
