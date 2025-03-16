@@ -64,7 +64,7 @@ class Vector(list):
     def __getattr__(self, attr):
         if attr in self._ATTR_STRING:
             return self[self._ATTR_STRING.index(attr)]
-        return list.__getattr__(attr)
+        return list.__getattribute__(self, attr)
 
     def __setattr__(self, attr, value):
         # print "set",attr,value
@@ -320,7 +320,7 @@ class Rectangle(BoundingVolume):
 
     def offset(self, offset_x, offset_y):
         o = Vector(offset_x, offset_y)
-        return Rect.fromPoints(self.pos-o, self.size+o)
+        return Rectangle.fromPoints(self.pos-o, self.size+o)
 
     def width(self):
         return self.size[0]
